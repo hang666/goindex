@@ -253,7 +253,7 @@ function file_code(path){
 function file_mp3(path){
 	var url = window.location.origin + path;
 	
-	document.write(<link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.css"><script src="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>');
+	document.write('<link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.css"><script src="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>');
 	var content = `
 <div class="mdui-container-fluid">
 	<br>
