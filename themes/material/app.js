@@ -141,7 +141,7 @@ function list_files(path,files){
                 });
             }
             var ext = p.split('.').pop();
-            if("|html|php|css|go|java|js|json|txt|sh|md|mp4|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0){
+            if("|html|php|css|go|java|js|json|txt|sh|md|mp4|mp3|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0){
 	            p += "?a=view";
 	            c += " view";
             }
@@ -185,6 +185,10 @@ function file(path){
 
 	if("|mp4|".indexOf(`|${ext}|`) >= 0){
 		return file_video(path);
+	}
+	
+	if("|mp3|".indexOf(`|${ext}|`) >= 0){
+		return file_mp3(path);
 	}
 
 	if("|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0){
@@ -243,6 +247,29 @@ function file_code(path){
 	        maxLines: Infinity
 	    });
 	});
+}
+
+// 音频展示 mp3
+function file_mp3(path){
+	var url = window.location.origin + path;
+	var content = `
+<div class="mdui-container-fluid">
+	<br>
+	<embed src="${url}" />
+	<br>
+	<!-- 固定标签 -->
+	<div class="mdui-textfield">
+	  <label class="mdui-textfield-label">下载地址</label>
+	  <input class="mdui-textfield-input" type="text" value="${url}"/>
+	</div>
+	<div class="mdui-textfield">
+	  <label class="mdui-textfield-label">引用地址</label>
+	  <textarea class="mdui-textfield-input"><embed src="${url}"></textarea>
+	</div>
+</div>
+<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
+	`;
+	$('#content').html(content);
 }
 
 // 文件展示 mp4
