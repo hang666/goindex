@@ -4,6 +4,7 @@ document.write('<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mdui@0.4.3/d
 document.write('<script src="//cdn.jsdelivr.net/npm/markdown-it@9.1.0/dist/markdown-it.min.js"></script>');
 document.write('<style>.mdui-appbar .mdui-toolbar{height:56px;font-size:1pc}.mdui-toolbar>*{padding:0 6px;margin:0 2px}.mdui-toolbar>i{opacity:.5}.mdui-toolbar>.mdui-typo-headline{padding:0 1pc 0 0}.mdui-toolbar>i{padding:0}.mdui-toolbar>a:hover,a.active,a.mdui-typo-headline{opacity:1}.mdui-container{max-width:980px}.mdui-list-item{transition:none}.mdui-list>.th{background-color:initial}.mdui-list-item>a{width:100%;line-height:3pc}.mdui-list-item{margin:2px 0;padding:0}.mdui-toolbar>a:last-child{opacity:1}@media screen and (max-width:980px){.mdui-list-item .mdui-text-right{display:none}.mdui-container{width:100%!important;margin:0}.mdui-toolbar>.mdui-typo-headline,.mdui-toolbar>a:last-child,.mdui-toolbar>i:first-child{display:block}}</style>');
 document.write('<link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.css"><script src="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>');
+document.write('<link class="dplayer-css" rel="stylesheet" href="https://cdn.staticfile.org/dplayer/1.25.0/DPlayer.min.css"><script src="https://cdn.staticfile.org/dplayer/1.25.0/DPlayer.min.js"></script>');
 
 // 初始化页面，并载入必要资源
 function init(){
@@ -64,7 +65,6 @@ function nav(path){
 function list(path){
 	var content = `
 	<div id="head_md" class="mdui-typo" style="display:none;padding: 20px 0;"></div>
-
 	 <div class="mdui-row"> 
 	  <ul class="mdui-list"> 
 	   <li class="mdui-list-item th"> 
@@ -224,7 +224,6 @@ function file_code(path){
 	<input class="mdui-textfield-input" type="text" value="${href}"/>
 </div>
 <a href="${href}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
-
 <script src="https://cdn.bootcss.com/ace/1.2.9/ace.js"></script>
 <script src="https://cdn.bootcss.com/ace/1.2.9/ext-language_tools.js"></script>
 	`;
@@ -279,7 +278,6 @@ function file_mp3(path){
                 }]
             });
             // 防止出现401 token过期
-
                 ap.on('error', function () {
                     if(cnt<=3){
                         console.log('播放出错，尝试第'+cnt+'次')
@@ -291,7 +289,6 @@ function file_mp3(path){
                         cnt=cnt+1;
                         }
                 });
-
             // 如果是播放状态 & 没有播放完 每25分钟重载视频防止卡死
             setInterval(function () {
                 if (!ap.audio.paused && !ap.audio.ended) {
@@ -315,9 +312,7 @@ function file_video(path){
 	var content = `
 <div class="mdui-container-fluid">
 	<br>
-	<video class="mdui-video-fluid mdui-center" preload controls>
-	  <source src="${url}" type="video/mp4">
-	</video>
+	<div id="dplayer"></div>
 	<br>
 	<!-- 固定标签 -->
 	<div class="mdui-textfield">
@@ -329,6 +324,44 @@ function file_video(path){
 	  <textarea class="mdui-textfield-input"><video><source src="${url}" type="video/mp4"></video></textarea>
 	</div>
 </div>
+<script>
+  $(function () {
+      const dp = new DPlayer({
+          container: document.getElementById('dplayer'),
+          lang: 'zh-cn',
+          video: {
+              url: "${url}",
+              type: 'auto'
+          },
+          autoplay: true
+      });
+      // 防止出现401 token过期
+      var cnt=1;
+      dp.on('error', function () {
+          if(cnt<=3){
+              console.log('获取资源错误，开始重新加载！');
+              let last = dp.video.currentTime;
+              dp.video.src = "${url}";
+              dp.video.load();
+              dp.video.currentTime = last;
+              dp.play();
+              cnt=cnt+1;
+          }
+
+      });
+      // 如果是播放状态 & 没有播放完 每25分钟重载视频防止卡死
+      setInterval(function () {
+          if (!dp.video.paused && !dp.video.ended) {
+              console.log('开始重新加载！');
+              let last = dp.video.currentTime;
+              dp.video.src = "${url}";
+              dp.video.load();
+              dp.video.currentTime = last;
+              dp.play();
+          }
+      }, 1000 * 60 * 25)
+  });
+</script>
 <a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
 	`;
 	$('#content').html(content);
