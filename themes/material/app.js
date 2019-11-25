@@ -253,20 +253,56 @@ function file_code(path){
 function file_mp3(path){
 	var url = window.location.origin + path;
 	var content = `
+<link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.css">
+<script src="https://cdnjs.loli.net/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
 <div class="mdui-container-fluid">
 	<br>
-	<embed src="${url}" />
+	  <center>
+            <div class="mdui-typo mdui-shadow-3 mudi-center" id="audio-player"></div>
+          </center>
 	<br>
 	<!-- 固定标签 -->
 	<div class="mdui-textfield">
 	  <label class="mdui-textfield-label">下载地址</label>
 	  <input class="mdui-textfield-input" type="text" value="${url}"/>
 	</div>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">引用地址</label>
-	  <textarea class="mdui-textfield-input"><embed src="${url}"></textarea>
-	</div>
 </div>
+  <script>
+        //参考了olaindex
+        $(function () {
+            var cnt=1;
+            const ap = new APlayer({
+                container: document.getElementById('audio-player'),
+                audio: [{
+                    url: "${url}",
+                }]
+            });
+            // 防止出现401 token过期
+
+                ap.on('error', function () {
+                    if(cnt<=3){
+                        console.log('播放出错，尝试第'+cnt+'次')
+                        let last = ap.audio.currentTime;
+                        ap.audio.src = "${url}";
+                        ap.audio.load();
+                        ap.audio.currentTime = last;
+                        ap.play();
+                        cnt=cnt+1;
+                        }
+                });
+
+            // 如果是播放状态 & 没有播放完 每25分钟重载视频防止卡死
+            setInterval(function () {
+                if (!ap.audio.paused && !ap.audio.ended) {
+                    let last = ap.audio.currentTime;
+                    ap.audio.src = "${url}";
+                    ap.audio.load();
+                    ap.audio.currentTime = last;
+                    ap.play();
+                }
+            }, 1000 * 60 * 25)
+        });
+  </script>
 <a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>
 	`;
 	$('#content').html(content);
